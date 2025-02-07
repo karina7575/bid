@@ -48,12 +48,12 @@ DO $$
 		test varchar;
 		c_table_name varchar;
 	BEGIN
-		FOR result_row IN (SELECT DISTINCT ON (product_type) * FROM bid) LOOP
+		FOR result_row IN (SELECT * FROM bid) LOOP
 			IF result_row.is_company = false THEN res_is_company := 'person';
 			ELSE res_is_company := 'company';
 			END IF;
 			c_table_name := res_is_company || '_' || result_row.product_type;
-			EXECUTE 'CREATE TABLE ' || c_table_name || '(
+			EXECUTE 'CREATE TABLE IF NOT EXISTS ' || c_table_name || '(
 									id serial primary key, 
 									client_name varchar(100),
 									amount numeric(12,2)
