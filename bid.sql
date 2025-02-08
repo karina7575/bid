@@ -67,7 +67,6 @@ DO $$
 $$
 
 
-
 --Скрипт №2 - Начисление процентов по кредитам за день
 --Создать скрипт, который:
 --1. Создаст(если нет) таблицу credit_percent для начисления процентов по кредитам: имя клиента, сумма начисленных процентов
@@ -79,7 +78,7 @@ $$
 
 select * from company_credit;
 select * from person_credit;
-
+select * FROM credit_percent;
 DO $$
 	DECLARE
 		base_credit_rate numeric (12,2);
@@ -89,7 +88,7 @@ DO $$
 	BEGIN
 		CREATE TABLE IF NOT EXISTS credit_percent (
 													client_name varchar(100),
-													persents int
+													persents numeric (20,2)
 		);
 		base_credit_rate := 0.1;
 		result_percents := 0;
