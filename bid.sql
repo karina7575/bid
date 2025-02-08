@@ -58,10 +58,11 @@ DO $$
 									client_name varchar(100),
 									amount numeric(12,2)
 									)';
-			EXECUTE 'INSERT INTO ' || c_table_name || '(client_name, amount) SELECT client_name, amount FROM bid';
+			IF result_row.is_company = false THEN EXECUTE 'INSERT INTO ' || c_table_name || '(client_name, amount) SELECT client_name, amount FROM bid';
 		END LOOP;
 	END;
 $$
+
 
 
 --Скрипт №2 - Начисление процентов по кредитам за день
@@ -72,6 +73,40 @@ $$
 -- необходимо выбрать id клиента и (сумму кредита * базовую ставку) / 365 для компаний
 -- необходимо выбрать id клиента и (сумму кредита * (базовую ставку + 0.05) / 365 для физ лиц
 --4. Печатает на экран общую сумму начисленных процентов в таблице
+
+select * from company_credit;
+select * from person_credit;
+
+DO $$
+	DECLARE
+		base_credit_rate numeric (12,2);
+		result_percents numeric (20,2);
+		result_row record;
+		person_percents numeric (20,2);
+	BEGIN
+		CREATE TABLE IF NOT EXISTS credit_percent (
+													client_name varchar(100),
+													persents int
+		);
+		base_credit_rate := 0.1;
+		result_percents := 0;
+		FOR result_row IN (SELECT * FROM person_credit) LOOP
+			person_percents := result_row.amount * (base_credit_rate +0.05)/365;
+			result_percents := result_percents + person_percents;
+			--RAISE NOTICE 'Result %', result_percents;
+			INSERT INTO credit_percent (client_name, persents) VALUES (result_row.client_name, person_percents);
+		END LOOP;
+
+		FOR result_row IN (SELECT * FROM company_credit) LOOP
+			person_percents := (result_row.amount * base_credit_rate)/365;
+			result_percents := result_percents + person_percents;
+			--RAISE NOTICE 'Result %', result_percents;
+			INSERT INTO credit_percent (client_name, persents) VALUES (result_row.client_name, person_percents);
+		END LOOP;
+		RAISE NOTICE 'Result %', result_percents;
+	END;
+$$
+
 
 --Скрипт №3 - Разделение ответственности. 
 --Менеджеры компаний, должны видеть только заявки компаний.
