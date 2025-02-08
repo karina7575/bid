@@ -58,7 +58,10 @@ DO $$
 									client_name varchar(100),
 									amount numeric(12,2)
 									)';
-			IF result_row.is_company = false THEN EXECUTE 'INSERT INTO ' || c_table_name || '(client_name, amount) SELECT client_name, amount FROM bid';
+			EXECUTE 'INSERT INTO ' || c_table_name || ' (client_name, amount) ' || ' SELECT client_name, amount 
+        																			FROM bid 
+        																			WHERE bid.product_type = $1 and bid.is_company = $2;'
+        	USING result_row.product_type, result_row.is_company;
 		END LOOP;
 	END;
 $$
