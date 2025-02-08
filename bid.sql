@@ -113,3 +113,8 @@ $$
 --Скрипт №3 - Разделение ответственности. 
 --Менеджеры компаний, должны видеть только заявки компаний.
 --Создать view которая отображает только заявки компаний
+
+
+CREATE VIEW company_manager AS SELECT p.client_name, p.persents FROM credit_percent p JOIN company_credit c ON (c.client_name = p.client_name);
+
+SELECT * FROM company_manager;
